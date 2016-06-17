@@ -11,9 +11,13 @@ public class App {
     private static final PaymentSummarizer paymentSummarizer = new PaymentSummarizer();
 
     public static void main(final String[] args) {
-        new PrintThread(paymentSummarizer).start();
-        readInput();
-        System.exit(0);
+        final PrintThread printThread = new PrintThread(paymentSummarizer);
+        printThread.start();
+        try {
+            readInput();
+        } finally {
+            printThread.die();
+        }
     }
 
     private static void readInput() {
