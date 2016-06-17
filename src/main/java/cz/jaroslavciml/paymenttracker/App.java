@@ -1,8 +1,39 @@
 package cz.jaroslavciml.paymenttracker;
 
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 public class App {
+    private static final PaymentParser paymentParser = new PaymentParser();
 
     public static void main(final String[] args) {
-        System.out.println("Hello World!");//TODO JC just to test initial app build
+        readInput();
+    }
+
+    private static void readInput() {
+        try (final BufferedReader inputReader = new BufferedReader(new InputStreamReader(System.in))) {
+            String line;
+            while ((line = inputReader.readLine()) != null)
+            {
+                if (StringUtils.strip(line).equalsIgnoreCase("quit")) {
+                    break;
+                }
+                processPaymentLine(line);
+            }
+        } catch (final IOException e) {
+            System.err.println("I/O error occurred when reading from standard input");
+            System.exit(1);
+        }
+    }
+
+    private static void processPaymentLine(final String line) {
+        try {
+            paymentParser.parse(line);
+        } catch (final IllegalArgumentException e) {
+            System.err.println("Cannot parse '" + line + "'");
+        }
     }
 }
