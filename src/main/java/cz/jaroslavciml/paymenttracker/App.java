@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 
 public class App {
     private static final PaymentParser paymentParser = new PaymentParser();
+    private static final PaymentSummarizer paymentSummarizer = new PaymentSummarizer();
 
     public static void main(final String[] args) {
         readInput();
@@ -30,10 +31,14 @@ public class App {
     }
 
     private static void processPaymentLine(final String line) {
+        final Payment payment;
         try {
-            paymentParser.parse(line);
+            payment = paymentParser.parse(line);
         } catch (final IllegalArgumentException e) {
             System.err.println("Cannot parse '" + line + "'");
+            return;
         }
+
+        paymentSummarizer.add(payment);
     }
 }
