@@ -35,8 +35,12 @@ public class PaymentSummarizer {
 
     public void print(final Writer writer) throws IOException {
         synchronized (lock) {
-            for (final Map.Entry<String, BigDecimal> sumEntry : sums.entrySet()) {
-                writer.write(sumEntry.getKey() + " " + sumEntry.getValue().toPlainString() + "\n");
+            if (!sums.isEmpty()) {
+                writer.write("\n");
+                for (final Map.Entry<String, BigDecimal> sumEntry : sums.entrySet()) {
+                    writer.write(sumEntry.getKey() + " " + sumEntry.getValue().toPlainString() + "\n");
+                }
+                writer.write("\n");
             }
         }
     }
