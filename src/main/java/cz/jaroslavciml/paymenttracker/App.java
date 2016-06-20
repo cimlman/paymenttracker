@@ -14,30 +14,20 @@ public class App {
     private static final PaymentSummarizer paymentSummarizer = new PaymentSummarizer();
 
     public static void main(final String[] args) {
-        int argIndex = 0;
-        final String exchangeRateFilename;
-        if (argIndex < args.length && args[argIndex].equals("-e")) {
-            argIndex++;
-            if (argIndex >= args.length) {
-                //TODO JC print usage
-                System.exit(1);
-            }
-            exchangeRateFilename = args[argIndex];
-            argIndex++;
-        } else {
-            exchangeRateFilename = null;
-        }
-        if (args.length > argIndex + 1) {
-            System.err.println("Supported arguments: [input_filename]");
+        final AppArguments appArguments;
+        try {
+            appArguments = new AppArgumentParser().parse(args);
+        } catch (final IllegalArgumentException e) {
+            System.err.println(AppArgumentParser.USAGE);
             System.exit(1);
+            throw new IllegalStateException("This point should never be reached"); // just to prevent compiler error
         }
-        final String inputFilename = argIndex < args.length ? args[argIndex] : null;
 
-        if (exchangeRateFilename != null) {
-            readExchangeRateFile(exchangeRateFilename);
+        if (appArguments.getExchangeRateFilename() != null) {
+            readExchangeRateFile(appArguments.getExchangeRateFilename());
         }
-        if (inputFilename != null) {
-            readInputFile(inputFilename);
+        if (appArguments.getInputFilename() != null) {
+            readInputFile(appArguments.getInputFilename());
         }
         final PrintThread printThread = new PrintThread(paymentSummarizer);
         printThread.start();
