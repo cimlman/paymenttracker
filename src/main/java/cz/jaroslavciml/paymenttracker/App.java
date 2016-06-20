@@ -3,8 +3,6 @@ package cz.jaroslavciml.paymenttracker;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
@@ -48,6 +46,21 @@ public class App {
         }
     }
 
+    private void readExchangeRateFile(final String filename) {
+        final List<USDRate> usdRates;
+        try {
+            usdRates = usdRateParser.parseFile(filename);
+        } catch (final IOException | USDRateParseException e) {
+            System.err.println(
+                    "I/O error occurred when reading from exchange rate file '" + filename + "': " + e.getMessage());
+            System.exit(1);
+            throw new IllegalStateException("This point should never be reached"); // just to prevent compiler error
+        }
+        for (final USDRate usdRate : usdRates) {
+            paymentSummarizer.setUSDRate(usdRate);
+        }
+    }
+
     private void readInputFile(final String filename) {
         final List<Payment> payments;
         try {
@@ -76,39 +89,5 @@ public class App {
             System.err.println("I/O error occurred when reading from standard input");
             System.exit(1);
         }
-    }
-
-    private void readExchangeRateFile(final String filename) {
-        final FileReader fileReader;
-        try {
-            fileReader = new FileReader(filename);
-        } catch (final FileNotFoundException e) {
-            System.err.println("Cannot open '" + filename + "'");
-            System.exit(1);
-            throw new IllegalStateException("This point should never be reached"); // just to prevent compiler error
-        }
-
-        try (final BufferedReader reader = new BufferedReader(fileReader)) {
-            String line;
-            while ((line = reader.readLine()) != null)
-            {
-                processExchangeRateLine(line);
-            }
-        } catch (final IOException e) {
-            System.err.println("I/O error occurred when reading from file '" + filename + "'");
-            System.exit(1);
-        }
-    }
-
-    private void processExchangeRateLine(final String line) {
-        final USDRate usdRate;
-        try {
-            usdRate = usdRateParser.parse(line);
-        } catch (final IllegalArgumentException e) {
-            System.err.println("Cannot parse '" + line + "'");
-            return;
-        }
-
-        paymentSummarizer.setUSDRate(usdRate);
     }
 }

@@ -16,8 +16,8 @@ import java.util.List;
 public class PaymentParser {
 
     /**
-     * Parses a {@link String} with the format {@code CCC a} where {@code CCC} is a three uppercase letter abbreviation
-     * of currency and {@code a} is a (possibly negative) decimal number with arbitrary precision. Currency and amount
+     * Parses a {@link String} with the format {@code CCC amount} where {@code CCC} is a three uppercase letter code of
+     * currency and {@code amount} is a (possibly negative) decimal number with arbitrary precision. Currency and amount
      * are separated by any whitespace characters.
      */
     public Payment parse(final String s) throws PaymentParseException {
@@ -50,6 +50,8 @@ public class PaymentParser {
      * See {@link #parse(String)} for the line format.
      */
     public List<Payment> parseFile(final String filename) throws IOException, PaymentParseException {
+        Validate.notNull(filename);
+
         final List<Payment> payments = new ArrayList<>();
 
         final FileReader fileReader = new FileReader(filename);

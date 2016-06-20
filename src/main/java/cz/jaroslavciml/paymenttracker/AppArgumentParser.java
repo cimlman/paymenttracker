@@ -1,5 +1,7 @@
 package cz.jaroslavciml.paymenttracker;
 
+import org.apache.commons.lang3.Validate;
+
 /**
  * An instance of this class (that is stateless) parses command line arguments of the application into an instance of
  * {@link AppArguments}.
@@ -8,6 +10,8 @@ public class AppArgumentParser {
     public static final String USAGE = "Supported arguments: [-e exchange_rate_filename] [input_filename]";
 
     public AppArguments parse(final String[] args) throws IllegalArgumentException {
+        Validate.notNull(args);
+
         int argIndex = 0;
         final String exchangeRateFilename;
         if (argIndex < args.length && args[argIndex].equals("-e")) {
