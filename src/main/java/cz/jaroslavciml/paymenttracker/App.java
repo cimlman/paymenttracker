@@ -9,9 +9,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class App {
-    private static final USDRateParser usdRateParser = new USDRateParser();
-    private static final PaymentParser paymentParser = new PaymentParser();
-    private static final PaymentSummarizer paymentSummarizer = new PaymentSummarizer();
+    private final USDRateParser usdRateParser = new USDRateParser();
+    private final PaymentParser paymentParser = new PaymentParser();
+    private final PaymentSummarizer paymentSummarizer = new PaymentSummarizer();
+
+    private App() {
+    }
 
     public static void main(final String[] args) {
         final AppArguments appArguments;
@@ -23,6 +26,10 @@ public class App {
             throw new IllegalStateException("This point should never be reached"); // just to prevent compiler error
         }
 
+        new App().run(appArguments);
+    }
+
+    private void run(final AppArguments appArguments) {
         if (appArguments.getExchangeRateFilename() != null) {
             readExchangeRateFile(appArguments.getExchangeRateFilename());
         }
@@ -38,7 +45,7 @@ public class App {
         }
     }
 
-    private static void readExchangeRateFile(final String filename) {
+    private void readExchangeRateFile(final String filename) {
         final FileReader fileReader;
         try {
             fileReader = new FileReader(filename);
@@ -60,7 +67,7 @@ public class App {
         }
     }
 
-    private static void processExchangeRateLine(final String line) {
+    private void processExchangeRateLine(final String line) {
         final USDRate usdRate;
         try {
             usdRate = usdRateParser.parse(line);
@@ -72,7 +79,7 @@ public class App {
         paymentSummarizer.setUSDRate(usdRate);
     }
 
-    private static void readInputFile(final String filename) {
+    private void readInputFile(final String filename) {
         final FileReader fileReader;
         try {
             fileReader = new FileReader(filename);
@@ -90,7 +97,7 @@ public class App {
         }
     }
 
-    private static void readStandardInput() {
+    private void readStandardInput() {
         try (final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
             readInput(reader, true);
         } catch (final IOException e) {
@@ -99,7 +106,7 @@ public class App {
         }
     }
 
-    private static void readInput(final BufferedReader reader, final boolean supportQuit) throws IOException {
+    private void readInput(final BufferedReader reader, final boolean supportQuit) throws IOException {
         String line;
         while ((line = reader.readLine()) != null)
         {
@@ -110,7 +117,7 @@ public class App {
         }
     }
 
-    private static void processPaymentLine(final String line) {
+    private void processPaymentLine(final String line) {
         final Payment payment;
         try {
             payment = paymentParser.parse(line);
