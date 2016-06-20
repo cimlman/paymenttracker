@@ -59,7 +59,9 @@ public class PaymentParser {
         try (final BufferedReader reader = new BufferedReader(fileReader)) {
             String line;
             while ((line = reader.readLine()) != null) {
-                payments.add(parse(line));
+                if (!StringUtils.isBlank(line)) {
+                    payments.add(parse(line));
+                }
             }
         }
 
