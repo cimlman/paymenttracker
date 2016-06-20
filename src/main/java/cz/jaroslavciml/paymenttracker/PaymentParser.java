@@ -4,13 +4,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import java.math.BigDecimal;
-import java.util.regex.Pattern;
 
 /**
  * Class with stateless instances capable of parsing a {@link String} into a {@link Payment} instance.
  */
 public class PaymentParser {
-    private static final Pattern CURRENCY_PATTERN = Pattern.compile("[A-Z]{3}");
 
     /**
      * Parses a {@link String} with the format {@code CCC a} where {@code CCC} is a three uppercase letter abbreviation
@@ -25,9 +23,11 @@ public class PaymentParser {
             throw new IllegalArgumentException("Currency and amount separated by whitespace expected");
         }
 
-        final String currency = elements[0];
-        if (!CURRENCY_PATTERN.matcher(currency).matches()) {
-            throw new IllegalArgumentException("Invalid currency: " + currency);
+        final Currency currency;
+        try {
+            currency = new Currency(elements[0]);
+        } catch (final IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid currency: " + elements[0]);
         }
 
         final BigDecimal amount;

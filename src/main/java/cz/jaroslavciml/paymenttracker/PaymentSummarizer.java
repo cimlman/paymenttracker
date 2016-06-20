@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public class PaymentSummarizer {
     private final Object lock = new Object();
-    private final Map<String, BigDecimal> sums = new LinkedHashMap<>();
+    private final Map<Currency, BigDecimal> sums = new LinkedHashMap<>();
 
     public void add(final Payment payment) {
         synchronized(lock) {
@@ -37,8 +37,8 @@ public class PaymentSummarizer {
         synchronized (lock) {
             if (!sums.isEmpty()) {
                 writer.write("\n");
-                for (final Map.Entry<String, BigDecimal> sumEntry : sums.entrySet()) {
-                    writer.write(sumEntry.getKey() + " " + sumEntry.getValue().toPlainString() + "\n");
+                for (final Map.Entry<Currency, BigDecimal> sumEntry : sums.entrySet()) {
+                    writer.write(sumEntry.getKey().getCode() + " " + sumEntry.getValue().toPlainString() + "\n");
                 }
                 writer.write("\n");
             }

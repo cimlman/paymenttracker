@@ -4,13 +4,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import java.math.BigDecimal;
-import java.util.regex.Pattern;
 
 /**
  * Class with stateless instances capable of parsing a {@link String} into a {@link USDRate} instance.
  */
 public class USDRateParser {
-    private static final Pattern CURRENCY_PATTERN = Pattern.compile("[A-Z]{3}");
 
     /**
      * Parses a {@link String} with the format {@code CCC usd_amount} where {@code CCC} is a three uppercase letter
@@ -25,9 +23,11 @@ public class USDRateParser {
             throw new IllegalArgumentException("Currency and USD amount separated by whitespace expected");
         }
 
-        final String currency = elements[0];
-        if (!CURRENCY_PATTERN.matcher(currency).matches()) {
-            throw new IllegalArgumentException("Invalid currency: " + currency);
+        final Currency currency;
+        try {
+            currency = new Currency(elements[0]);
+        } catch (final IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid currency: " + elements[0]);
         }
 
         final BigDecimal usdAmount;
@@ -37,7 +37,7 @@ public class USDRateParser {
             throw new IllegalArgumentException("Invalid USD amount: " + elements[1], e);
         }
         if (usdAmount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Positive USD amoutn expected but " + elements[1] + " found");
+            throw new IllegalArgumentException("Positive USD amount expected but " + elements[1] + " found");
         }
 
         return new USDRate(currency, usdAmount);
