@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
 public class App {
     private final USDRateParser usdRateParser = new USDRateParser();
@@ -33,15 +34,47 @@ public class App {
         if (appArguments.getExchangeRateFilename() != null) {
             readExchangeRateFile(appArguments.getExchangeRateFilename());
         }
+
         if (appArguments.getInputFilename() != null) {
             readInputFile(appArguments.getInputFilename());
         }
+
         final PrintThread printThread = new PrintThread(paymentSummarizer);
         printThread.start();
         try {
             readStandardInput();
         } finally {
             printThread.die();
+        }
+    }
+
+    private void readInputFile(final String filename) {
+        final List<Payment> payments;
+        try {
+            payments = paymentParser.parseFile(filename);
+        } catch (final IOException | PaymentParseException e) {
+            System.err.println("I/O error occurred when reading from file '" + filename + "': " + e.getMessage());
+            System.exit(1);
+            throw new IllegalStateException("This point should never be reached"); // just to prevent compiler error
+        }
+        for (final Payment payment : payments) {
+            paymentSummarizer.addPayment(payment);
+        }
+    }
+
+    private void readStandardInput() {
+        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
+            String line;
+            while ((line = reader.readLine()) != null && !StringUtils.strip(line).equalsIgnoreCase("quit")) {
+                try {
+                    paymentSummarizer.addPayment(paymentParser.parse(line));
+                } catch (final PaymentParseException e) {
+                    System.err.println("Cannot parse '" + line + "'");
+                }
+            }
+        } catch (final IOException e) {
+            System.err.println("I/O error occurred when reading from standard input");
+            System.exit(1);
         }
     }
 
@@ -77,55 +110,5 @@ public class App {
         }
 
         paymentSummarizer.setUSDRate(usdRate);
-    }
-
-    private void readInputFile(final String filename) {
-        final FileReader fileReader;
-        try {
-            fileReader = new FileReader(filename);
-        } catch (final FileNotFoundException e) {
-            System.err.println("Cannot open '" + filename + "'");
-            System.exit(1);
-            throw new IllegalStateException("This point should never be reached"); // just to prevent compiler error
-        }
-
-        try (final BufferedReader reader = new BufferedReader(fileReader)) {
-            readInput(reader, false);
-        } catch (final IOException e) {
-            System.err.println("I/O error occurred when reading from file '" + filename + "'");
-            System.exit(1);
-        }
-    }
-
-    private void readStandardInput() {
-        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
-            readInput(reader, true);
-        } catch (final IOException e) {
-            System.err.println("I/O error occurred when reading from standard input");
-            System.exit(1);
-        }
-    }
-
-    private void readInput(final BufferedReader reader, final boolean supportQuit) throws IOException {
-        String line;
-        while ((line = reader.readLine()) != null)
-        {
-            if (supportQuit && StringUtils.strip(line).equalsIgnoreCase("quit")) {
-                break;
-            }
-            processPaymentLine(line);
-        }
-    }
-
-    private void processPaymentLine(final String line) {
-        final Payment payment;
-        try {
-            payment = paymentParser.parse(line);
-        } catch (final IllegalArgumentException e) {
-            System.err.println("Cannot parse '" + line + "'");
-            return;
-        }
-
-        paymentSummarizer.addPayment(payment);
     }
 }
