@@ -71,14 +71,15 @@ public class App {
     }
 
     private static void processExchangeRateLine(final String line) {
+        final USDRate usdRate;
         try {
-            usdRateParser.parse(line);
+            usdRate = usdRateParser.parse(line);
         } catch (final IllegalArgumentException e) {
             System.err.println("Cannot parse '" + line + "'");
             return;
         }
 
-        //TODO JC store to payment summarizer
+        paymentSummarizer.setUSDRate(usdRate);
     }
 
     private static void readInputFile(final String filename) {
@@ -128,6 +129,6 @@ public class App {
             return;
         }
 
-        paymentSummarizer.add(payment);
+        paymentSummarizer.addPayment(payment);
     }
 }
