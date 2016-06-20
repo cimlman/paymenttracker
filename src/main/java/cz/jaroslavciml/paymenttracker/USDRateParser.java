@@ -16,34 +16,16 @@ import java.util.List;
 public class USDRateParser {
 
     /**
-     * Parses a whole file into a list of {@link USDRate} instances. Each line in the file corresponds to one
-     * {@link USDRate} instance. A line is expected to have the format {@code CCC usd_amount} where {@code CCC} is
-     * a three uppercase letter code of currency and {@code usd_amount} is a positive decimal number with arbitrary
-     * precision. Currency and USD amount are separated by any whitespace characters.
+     * Parses a {@link String} with the format {@code CCC usd_amount} where {@code CCC} is a three uppercase letter
+     * code of currency and {@code usd_amount} is a positive decimal number with arbitrary precision. Currency
+     * and USD amount are separated by any whitespace characters.
      */
-    public List<USDRate> parseFile(final String filename) throws IOException, USDRateParseException {
-        Validate.notNull(filename);
-
-        final List<USDRate> usdRates = new ArrayList<>();
-
-        final FileReader fileReader = new FileReader(filename);
-
-        try (final BufferedReader reader = new BufferedReader(fileReader)) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                usdRates.add(parseLine(line));
-            }
-        }
-
-        return usdRates;
-    }
-
-    private USDRate parseLine(final String s) throws USDRateParseException {
+    public USDRate parse(final String s) throws USDRateParseException {
         Validate.notNull(s);
 
         final String[] elements = StringUtils.split(s);
         if (elements.length != 2) {
-            throw new USDRateParseException("Currency and USD amount separated by whitespace expected");
+            throw new USDRateParseException("Currency and USD amount separated by whitespace expected in '" + s + "'");
         }
 
         final Currency currency;
@@ -64,5 +46,28 @@ public class USDRateParser {
         }
 
         return new USDRate(currency, usdAmount);
+    }
+
+    /**
+     * Parses a whole file into a list of {@link USDRate} instances. Each line in the file corresponds to one
+     * {@link USDRate} instance. See {@link #parse(String)} for the line format.
+     */
+    public List<USDRate> parseFile(final String filename) throws IOException, USDRateParseException {
+        Validate.notNull(filename);
+
+        final List<USDRate> usdRates = new ArrayList<>();
+
+        final FileReader fileReader = new FileReader(filename);
+
+        try (final BufferedReader reader = new BufferedReader(fileReader)) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (!StringUtils.isBlank(line)) {
+                    usdRates.add(parse(line));
+                }
+            }
+        }
+
+        return usdRates;
     }
 }

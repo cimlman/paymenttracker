@@ -15,7 +15,7 @@ public class PaymentParserTest {
 
         ReflectionAssert.assertReflectionEquals(
                 new Payment(new Currency("NZD"), new BigDecimal("-150.5")),
-                paymentParser.parse("   NZD     -150.5"));
+                paymentParser.parse("   NZD     -150.5 "));
     }
 
     @Test(expected = PaymentParseException.class)
