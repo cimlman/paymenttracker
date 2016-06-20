@@ -11,7 +11,7 @@ import java.io.Writer;
  * {@link PaymentSummarizer} passed as a constructor argument. Call {@link #die()} to end the loop.
  */
 public class PrintThread extends Thread {
-    private static final long PRINT_INTERVAL_MILLIS = 10L * 1000L; //TODO JC should be 1 minute
+    private static final long PRINT_INTERVAL_MILLIS = 60L * 1000L; // 1 minute
 
     private final Object conditionVariable = new Object();
     private boolean dieFlag;
