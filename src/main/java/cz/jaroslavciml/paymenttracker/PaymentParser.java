@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.util.regex.Pattern;
 
 /**
- * Class with stateless instances capable of parsing a {@link String} into a {@link Payment} instances.
+ * Class with stateless instances capable of parsing a {@link String} into a {@link Payment} instance.
  */
 public class PaymentParser {
     private static final Pattern CURRENCY_PATTERN = Pattern.compile("[A-Z]{3}");
